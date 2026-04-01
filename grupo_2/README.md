@@ -1,2 +1,2 @@
-# GRUPO 2
+# Netflix
 Acá el grupo 2 sube sus trabajos
