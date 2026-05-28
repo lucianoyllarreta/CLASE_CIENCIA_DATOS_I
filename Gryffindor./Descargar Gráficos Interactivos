@@ -1,0 +1,7 @@
+from google.colab import files
+files.download('grafico.html')
+fig.write_html("grafico.html", full_html=True)
+
+El gráfico debe tener el código fig para ejecutar. Por ejemplo:
+fig.update_layout(showlegend=True)
+fig.show()
