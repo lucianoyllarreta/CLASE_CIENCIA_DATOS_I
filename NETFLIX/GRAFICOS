@@ -1,1 +1,70 @@
+import pandas as pd
+import matplotlib.pyplot as plt
 
+# --- 1. PREPARACIÓN DE DATOS Y KPIS ---
+df['duration_num'] = df['duration_minutes'].astype(str).str.replace(' min', '').astype(float)
+df_valid = df[df['duration_num'] > 0].copy()
+df_valid['completion_rate'] = (df_valid['watch_duration_minutes'] / df_valid['duration_num']) * 100
+
+# Cálculos
+tasa_retencion = df_valid['completion_rate'].mean()
+minutos_vistos = df_valid['watch_duration_minutes'].mean()
+tasa_abandono = (len(df_valid[df_valid['completion_rate'] < 40]) / len(df_valid)) * 100
+
+calidad_sueno = df2['sleep_quality_score'].mean()
+tasa_deficit = (len(df2[df2['sleep_duration_hrs'] < 7]) / len(df2)) * 100
+estres_prom = df2['stress_score'].mean()
+
+# Agrupaciones
+netflix_agrupado = df_valid.groupby("age").agg(mins=("watch_duration_minutes", "mean"), ret=("completion_rate", "mean")).reset_index()
+sueno_agrupado = df2.groupby("age").agg(calidad=("sleep_quality_score", "mean"), pantalla=("screen_time_before_bed_mins", "mean")).reset_index()
+comb = pd.merge(netflix_agrupado, sueno_agrupado, on="age", how="inner")
+
+corr_ret_pantalla = comb['ret'].corr(comb['pantalla'])
+mediana_mins = comb['mins'].median()
+sueno_heavy = comb[comb['mins'] >= mediana_mins]['calidad'].mean()
+sueno_light = comb[comb['mins'] < mediana_mins]['calidad'].mean()
+
+# --- 2. CREACIÓN DEL DASHBOARD CON VALORES ESPERADOS ---
+plt.style.use('dark_background')
+fig, axes = plt.subplots(3, 3, figsize=(16, 11)) # Ajustamos la altura para acomodar el nuevo texto
+fig.patch.set_facecolor('#0a0a0a')
+
+# Diccionario con los datos, descripciones y los BENCHMARKS (Objetivos)
+kpis = [
+    # Fila 1: Netflix (Rojos)
+    {"ax": axes[0,0], "titulo": "Retención Promedio", "valor": f"{tasa_retencion:.1f}%", "color": "#E50914", "desc": "Progreso por sesión", "esperado": "Objetivo ideal: > 70%"},
+    {"ax": axes[0,1], "titulo": "Volumen de Consumo", "valor": f"{minutos_vistos:.1f}", "color": "#E50914", "desc": "Minutos por sesión", "esperado": "Objetivo ideal: > 90 min"},
+    {"ax": axes[0,2], "titulo": "Abandono Crítico", "valor": f"{tasa_abandono:.1f}%", "color": "#E50914", "desc": "<40% completado", "esperado": "Objetivo ideal: < 15%"},
+
+    # Fila 2: Sueño (Verdes)
+    {"ax": axes[1,0], "titulo": "Déficit de Sueño", "valor": f"{tasa_deficit:.1f}%", "color": "#22c55e", "desc": "Duermen < 7 horas", "esperado": "Objetivo ideal: < 20%"},
+    {"ax": axes[1,1], "titulo": "Calidad de Sueño", "valor": f"{calidad_sueno:.1f}/10", "color": "#22c55e", "desc": "Puntuación general", "esperado": "Objetivo ideal: > 7.0/10"},
+    {"ax": axes[1,2], "titulo": "Nivel de Estrés", "valor": f"{estres_prom:.1f}/10", "color": "#22c55e", "desc": "Promedio reportado", "esperado": "Objetivo ideal: < 4.0/10"},
+
+    # Fila 3: Combinados (Azules/Blancos)
+    {"ax": axes[2,0], "titulo": "Corr. Retención/Pantalla", "valor": f"{corr_ret_pantalla:+.2f}", "color": "#3b82f6", "desc": "Relación Positiva Fuerte", "esperado": "Objetivo ideal: Cercano a 0"},
+    {"ax": axes[2,1], "titulo": "Descanso: Heavy Users", "valor": f"{sueno_heavy:.2f}/10", "color": "white", "desc": "Usuarios alto consumo", "esperado": "Objetivo ideal: > 7.0/10"},
+    {"ax": axes[2,2], "titulo": "Descanso: Light Users", "valor": f"{sueno_light:.2f}/10", "color": "white", "desc": "Usuarios bajo consumo", "esperado": "Objetivo ideal: > 7.0/10"}
+]
+
+# Dibujar cada tarjeta
+for item in kpis:
+    ax = item["ax"]
+    ax.axis('off')
+
+    # Fondo de tarjeta
+    rect = plt.Rectangle((0, 0), 1, 1, facecolor='#141414', edgecolor='#333333', linewidth=2, transform=ax.transAxes)
+    ax.add_patch(rect)
+
+    # Textos principales
+    ax.text(0.5, 0.80, item["titulo"], color='#888888', fontsize=14, fontweight='bold', ha='center', va='center', transform=ax.transAxes)
+    ax.text(0.5, 0.50, item["valor"], color=item["color"], fontsize=38, fontweight='bold', ha='center', va='center', transform=ax.transAxes)
+    ax.text(0.5, 0.28, item["desc"], color='white', fontsize=12, ha='center', va='center', transform=ax.transAxes)
+
+    # Textos del valor esperado (Benchmark en color amarillo suave)
+    ax.text(0.5, 0.10, item["esperado"], color='#facc15', fontsize=11, fontweight='bold', style='italic', ha='center', va='center', transform=ax.transAxes)
+
+plt.suptitle('DASHBOARD ESTRATÉGICO: NETFLIX vs. SALUD DEL SUEÑO', color='white', fontsize=22, fontweight='bold', y=0.98)
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.show()
