@@ -1,0 +1,27 @@
+import plotly.express as px
+
+# Filtrar df_merged para el año 2015, ya que 'Happiness_Score' solo está disponible para ese año
+df_2015_analysis = df_merged[df_merged['Year'] == 2015].dropna(subset=['Life expectancy', 'Happiness_Score', 'Region', 'GDP'])
+
+fig = px.scatter(
+    df_2015_analysis,
+    x='Happiness_Score',
+    y='Life expectancy',
+    color='Region',
+    size='GDP',
+    hover_name='Country',
+    hover_data=['Adult Mortality', 'Schooling', 'HIV/AIDS', 'Trust_Government_Corruption'],
+    title='Expectativa de Vida vs. Puntuación de Felicidad en 2015 (Interactivo)',
+    labels={
+        'Happiness_Score': 'Puntuación de Felicidad',
+        'Life expectancy': 'Expectativa de Vida',
+        'GDP': 'PIB (en miles de USD)',
+        'Adult Mortality': 'Mortalidad Adultos',
+        'Schooling': 'Años de Escolaridad',
+        'HIV/AIDS': 'Prevalencia HIV/SIDA',
+        'Trust_Government_Corruption': 'Confianza en Gobierno (Corrupción)'
+    }
+)
+
+fig.update_layout(showlegend=True) # Ensure legend is visible
+fig.show()
