@@ -1,0 +1,93 @@
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# Assuming df is already loaded and processed as in previous cells
+
+# 1. Prepare data and train models with consistent column names
+df_arg = df[df['country'] == 'Argentina'].dropna(subset=['gdp_per_capita']).sort_values('year')
+X_arg = df_arg[['year']]
+y_arg = df_arg['gdp_per_capita']
+model_arg = LinearRegression().fit(X_arg, y_arg)
+
+df_aus = df[df['country'] == 'Australia'].dropna(subset=['gdp_per_capita']).sort_values('year')
+X_aus = df_aus[['year']]
+y_aus = df_aus['gdp_per_capita']
+model_aus = LinearRegression().fit(X_aus, y_aus)
+
+# 2. Rango extendido para visualización (1930-2026)
+years_ext = pd.DataFrame({'year': np.arange(1930, 2027)})
+pred_arg_ext = model_arg.predict(years_ext)
+pred_aus_ext = model_aus.predict(years_ext)
+
+# 3. CAGR (Calculado sobre el periodo con datos positivos: 1991-2026)
+def calc_cagr(start, end, p):
+    if start <= 0: return 0
+    return (pow(end / start, 1/p) - 1) * 100
+
+# Predicciones puntuales usando DataFrames para evitar warnings de feature names
+val_1991_arg = model_arg.predict(pd.DataFrame({'year': [1991]}))[0]
+val_2026_arg = model_arg.predict(pd.DataFrame({'year': [2026]}))[0]
+val_1991_aus = model_aus.predict(pd.DataFrame({'year': [1991]}))[0]
+val_2026_aus = model_aus.predict(pd.DataFrame({'year': [2026]}))[0]
+
+cagr_arg = calc_cagr(val_1991_arg, val_2026_arg, 2026-1991)
+cagr_aus = calc_cagr(val_1991_aus, val_2026_aus, 2026-1991)
+
+# Create Plotly figure
+fig = go.Figure()
+
+# Argentina (Real) - Celeste
+fig.add_trace(go.Scatter(
+    x=df_arg['year'], y=df_arg['gdp_per_capita'],
+    mode='lines+markers', name='Argentina (Real)',
+    line=dict(color='#87CEEB', width=2.5),
+    marker=dict(size=6, symbol='circle')
+))
+
+# Argentina (Tendencia) - Celeste dashed
+fig.add_trace(go.Scatter(
+    x=years_ext['year'], y=pred_arg_ext,
+    mode='lines', name=f'Arg: Tendencia 1930-2026 (Trend: {cagr_arg:.2f}%)',
+    line=dict(color='#87CEEB', width=2, dash='dash'), # Removed opacity from here
+    opacity=0.6 # Moved opacity here
+))
+
+# Australia (Real) - Amarillo
+fig.add_trace(go.Scatter(
+    x=df_aus['year'], y=df_aus['gdp_per_capita'],
+    mode='lines+markers', name='Australia (Real)',
+    line=dict(color='#FFFF00', width=2.5),
+    marker=dict(size=6, symbol='circle')
+))
+
+# Australia (Tendencia) - Amarillo dashed
+fig.add_trace(go.Scatter(
+    x=years_ext['year'], y=pred_aus_ext,
+    mode='lines', name=f'Aus: Tendencia 1930-2026 (Trend: {cagr_aus:.2f}%)',
+    line=dict(color='#FFFF00', width=2, dash='dash'), # Removed opacity from here
+    opacity=0.6 # Moved opacity here
+))
+
+# Reference line for start of real data
+fig.add_vline(x=1991, line_dash="dot", line_color="white", annotation_text="Inicio datos reales", annotation_position="top right")
+
+fig.update_layout(
+    title_text='Divergencia Estructural: Argentina vs Australia (Proyección 1930-2026)',
+    title_font_size=16,
+    xaxis_title='Año',
+    yaxis_title='GDP per cápita (USD)',
+    legend_title='Series',
+    hovermode='x unified', # Shows hover info for all traces at a given x-value
+    template='plotly_dark', # Use a dark theme for consistency with previous matplotlib style
+    height=500,
+    yaxis_range=[0, max(pred_aus_ext) * 1.1] # Set y-axis range to avoid negative values
+)
+
+fig.show()
+
+# Save the interactive plot as an HTML file
+fig.write_html("gdp_argentina_australia_interactive.html")
+print("Interactive plot saved as gdp_argentina_australia_interactive.html")
+print("You can download this file from the Colab file browser (folder icon on the left).")
