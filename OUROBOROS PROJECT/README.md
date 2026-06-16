@@ -59,8 +59,6 @@ El mercado objetivo de la consultora se divide en tres segmentos:
 ## 🟢 Conceptos clave
 
 - **KPI (Key Performance Indicator):** mide una sola dimensión del negocio (ej. eficiencia de monetización, velocidad de adopción).
-- **Scoring:** combina varias dimensiones en un único número para poder ordenar y comparar; la decisión más importante no es la fórmula, sino qué variables se incluyen y qué peso recibe cada una.
-- **Forecast:** identifica patrones de comportamiento sostenidos en el pasado y los proyecta hacia adelante, sin "inventar" el futuro.
 - **ARPU (Average Revenue Per User):** ingreso promedio estimado por usuario, usado para calcular revenue en juegos free-to-play donde el precio de lista es $0.
 - **ADPG / ADPC (Steam cut):** porcentaje que la plataforma retiene de cada venta; permite pasar de un revenue bruto a un revenue neto más realista.
 - **F2P vs Premium:** los dos grandes modelos de negocio del mercado — regalar el juego y monetizar después, o cobrar por adelantado.
@@ -138,7 +136,7 @@ Cierra la primera parte del análisis traduciendo los resultados anteriores en u
 
 A partir del feedback de la primera entrega, la consultora evoluciona hacia **Ouroboros Project**, profundizando el análisis con un marco más estratégico: cada indicador deja de responder solo "qué pasó" para responder primero **por qué le importa a una empresa**. La segunda parte incorpora:
 
-- Cuatro **KPIs** de negocio: RPO, TTT, RRG e ILC.
+- Cinco **KPIs** de negocio: RPO, TTT, RRG, ILC y Géneros Más Rentables.
 - Dos **modelos de Scoring**: disponibilidad por sistema operativo, y F2P vs Premium.
 - Dos **forecasts**: crecimiento del mercado en cantidad de lanzamientos, y un forecast combinado de precio original + descuento promedio.
 
@@ -229,6 +227,9 @@ Calcula `Revenue / promedio de Revenue del género` para cada juego, identifican
 
 ### KPI N°4 — ILC (Índice de Longevidad Comercial)
 Se construye sobre el catálogo completo (`df2`) en lugar del top 500, usando `user_reviews` como proxy de actividad de jugadores y calculando los años transcurridos desde el lanzamiento (con un piso de 1 año para que el índice tenga sentido). Permite distinguir entre "éxitos de temporada" y modelos de negocio durables.
+
+### KPI N°5 — Géneros Más Rentables
+Tiene como objetivo identificar los géneros de videojuegos con mayor potencial económico, utilizando una aproximación para el revenue. Para ello, se fusionan ambos datasets principales mediante una normalización de los títulos de los juegos, y se asigna un `Primary_Genre` a los juegos de `df2`. Dado que `df2` carece de datos de `Estimated_Owners`, se crea un `Revenue_Proxy` multiplicando el `price_final` por `user_reviews`, sirviendo como una medida comparativa del potencial económico y expresado en un gráfico circular interactivo de Plotly.
 
 ### Forecast 1 — Evolución histórica y proyección de lanzamientos
 Primero construye un gráfico de barras apiladas (juegos estándar + juegos de perfil limitado) con la serie histórica completa desde 2006. Luego ajusta una **regresión polinómica de grado 2** sobre los datos desde 2012 (en lugar de una línea recta) porque el crecimiento del mercado es exponencial y no lineal, y proyecta la cantidad de lanzamientos para 2026, 2027 y 2028 con una banda de error de ±15%, acercándose y potencialmente superando los 25.000–28.000 títulos nuevos por año.
