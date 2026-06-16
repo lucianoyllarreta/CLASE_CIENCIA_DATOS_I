@@ -219,17 +219,17 @@ Cruza `Review_Score_Pct_SteamDB` (df1) con `positive_ratio` y `rating` (df2) por
 ### KPI N°1 — RPO (Revenue por Owner)
 Calcula `Revenue / Estimated_Owners` para medir cuánto dinero genera cada juego por cada persona que lo posee, con un selector interactivo por tramo de precio. El RPO promedio del mercado analizado fue de **USD 16,74** (mediana USD 14,97), creciendo de forma proporcional al precio de lista: desde ~USD 5 en juegos de USD 9,99 hasta ~USD 37 en juegos de USD 69,99.
 
-### KPI N°2 — TTT (Tasa de Tracción Temprana)
-Calcula cuántas reviews acumula un juego por cada año que lleva disponible en el mercado, fusionando `user_reviews` y `positive_ratio` desde `df2` y calculando los años transcurridos desde `Release_Date`. Permite distinguir entre juegos que "explotaron" al salir y juegos de crecimiento lento y sostenido.
-
-### KPI N°3 — RRG (Rentabilidad Relativa al Género)
+### KPI N°2 — RRG (Rentabilidad Relativa al Género)
 Calcula `Revenue / promedio de Revenue del género` para cada juego, identificando "campeones de nicho" que superan ampliamente el estándar de su propia categoría aunque no figuren en el top de ingresos globales. El resultado se visualiza con un gráfico de barras interactivo en Plotly con escala de color RdYlGn.
 
-### KPI N°4 — ILC (Índice de Longevidad Comercial)
+### KPI N°3 — ILC (Índice de Longevidad Comercial)
 Se construye sobre el catálogo completo (`df2`) en lugar del top 500, usando `user_reviews` como proxy de actividad de jugadores y calculando los años transcurridos desde el lanzamiento (con un piso de 1 año para que el índice tenga sentido). Permite distinguir entre "éxitos de temporada" y modelos de negocio durables.
 
-### KPI N°5 — Géneros Más Rentables
+### KPI N°4 — Géneros Más Rentables
 Tiene como objetivo identificar los géneros de videojuegos con mayor potencial económico, utilizando una aproximación para el revenue. Para ello, se fusionan ambos datasets principales mediante una normalización de los títulos de los juegos, y se asigna un `Primary_Genre` a los juegos de `df2`. Dado que `df2` carece de datos de `Estimated_Owners`, se crea un `Revenue_Proxy` multiplicando el `price_final` por `user_reviews`, sirviendo como una medida comparativa del potencial económico y expresado en un gráfico circular interactivo de Plotly.
+
+### KPI N°5 — TTT (Tasa de Tracción Temprana)
+Calcula cuántas reviews acumula un juego por cada año que lleva disponible en el mercado, fusionando `user_reviews` y `positive_ratio` desde `df2` y calculando los años transcurridos desde `Release_Date`. Permite distinguir entre juegos que "explotaron" al salir y juegos de crecimiento lento y sostenido.
 
 ### Forecast 1 — Evolución histórica y proyección de lanzamientos
 Primero construye un gráfico de barras apiladas (juegos estándar + juegos de perfil limitado) con la serie histórica completa desde 2006. Luego ajusta una **regresión polinómica de grado 2** sobre los datos desde 2012 (en lugar de una línea recta) porque el crecimiento del mercado es exponencial y no lineal, y proyecta la cantidad de lanzamientos para 2026, 2027 y 2028 con una banda de error de ±15%, acercándose y potencialmente superando los 25.000–28.000 títulos nuevos por año.
