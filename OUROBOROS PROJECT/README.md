@@ -28,7 +28,7 @@
 2. [Conceptos clave](#-conceptos-clave)
 3. [Proceso de actualización del dataset](#-proceso-de-actualización-del-dataset)
 4. [Bloques de código — primera parte](#-bloques-de-código--primera-parte)
-5. [Conclusión de la primera presentación y feedback dado](#-conclusión-de-la-primera-presentación)
+5. [Conclusión de la primera presentación](#-conclusión-de-la-primera-presentación)
 
 **Segunda parte — Ouroboros Project**
 6. [Introducción segunda parte](#-introducción-segunda-parte)
